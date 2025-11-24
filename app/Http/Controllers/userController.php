@@ -233,6 +233,7 @@ class UserController extends Controller
                 'message' => 'Failed to fetch user apartments',
                 'error' => $e->getMessage()
             ], 500);
+            
         }
     }
 

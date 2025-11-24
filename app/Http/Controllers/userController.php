@@ -8,6 +8,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+
 
 class UserController extends Controller
 {
@@ -62,116 +64,116 @@ class UserController extends Controller
     /**
      * Store a newly created user.
      */
-    public function store(Request $request): JsonResponse
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
-            'phone' => 'required|string|unique:users,phone',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
+    // public function store(Request $request): JsonResponse
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'name' => 'required|string|max:255',
+    //         'email' => 'required|email|unique:users,email',
+    //         'password' => 'required|string|min:8',
+    //         'phone' => 'required|string|unique:users,phone',
+    //         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+    //     ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Validation failed',
+    //             'errors' => $validator->errors()
+    //         ], 422);
+    //     }
 
-        try {
-            $data = $request->all();
-            $data['password'] = Hash::make($request->password);
+    //     try {
+    //         $data = $request->all();
+    //         $data['password'] = Hash::make($request->password);
 
-            // Handle image upload
-            if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('users', 'public');
-                $data['image'] = $imagePath;
-            }
+    //         // Handle image upload
+    //         if ($request->hasFile('image')) {
+    //             $imagePath = $request->file('image')->store('users', 'public');
+    //             $data['image'] = $imagePath;
+    //         }
 
-            $user = User::create($data);
+    //         $user = User::create($data);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'User created successfully',
-                'data' => $user
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to create user',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'User created successfully',
+    //             'data' => $user
+    //         ], 201);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Failed to create user',
+    //             'error' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
 
     /**
      * Update the specified user.
      */
-    public function update(Request $request, $id): JsonResponse
-    {
-        $user = User::find($id);
+    // public function update(Request $request, $id): JsonResponse
+    // {
+    //     $user = User::find($id);
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not found'
-            ], 404);
-        }
+    //     if (!$user) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'User not found'
+    //         ], 404);
+    //     }
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,' . $id,
-            'password' => 'sometimes|string|min:8',
-            'phone' => 'sometimes|string|unique:users,phone,' . $id,
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
+    //     $validator = Validator::make($request->all(), [
+    //         // 'name' => 'sometimes|string|max:255',
+    //         // 'email' => 'sometimes|email|unique:users,email,' . $id,
+    //         // 'password' => 'sometimes|string|min:8',
+    //         // 'phone' => 'sometimes|string|unique:users,phone,' . $id,
+    //         'image' => 'somtimes|image|mimes:jpeg,png,jpg,gif|max:2048'
+    //     ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Validation failed',
+    //             'errors' => $validator->errors()
+    //         ], 422);
+    //     }
 
-        try {
-            $data = $request->all();
+    //     try {
+    //         $data = $request->all();
 
-            // Hash password if provided
-            if ($request->has('password')) {
-                $data['password'] = Hash::make($request->password);
-            } else {
-                unset($data['password']);
-            }
+    //         // // Hash password if provided
+    //         // if ($request->has('password')) {
+    //         //     $data['password'] = Hash::make($request->password);
+    //         // } else {
+    //         //     unset($data['password']);
+    //         // }
 
-            // Handle image upload
-            if ($request->hasFile('image')) {
-                // Delete old image if exists
-                if ($user->image && Storage::disk('public')->exists($user->image)) {
-                    Storage::disk('public')->delete($user->image);
-                }
+    //         // Handle image upload
+    //         if ($request->hasFile('image')) {
+    //             // Delete old image if exists
+    //             if ($user->image && Storage::disk('public')->exists($user->image)) {
+    //                 Storage::disk('public')->delete($user->image);
+    //             }
 
-                $imagePath = $request->file('image')->store('users', 'public');
-                $data['image'] = $imagePath;
-            }
+    //             $imagePath = $request->file('image')->store('users', 'public');
+    //             $data['image'] = $imagePath;
+    //         }
 
-            $user->update($data);
+    //         $user->update($data);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'User updated successfully',
-                'data' => $user
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update user',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'User updated successfully',
+    //             'data' => $user
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Failed to update user',
+    //             'error' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
 
     /**
      * Remove the specified user.
@@ -287,6 +289,91 @@ class UserController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch user reviews',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+     public function updateImage(Request $request, $id): JsonResponse
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120' // 5MB max
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            // Delete old image if exists
+            if ($user->image && Storage::disk('public')->exists($user->image)) {
+                Storage::disk('public')->delete($user->image);
+            }
+
+            // Store new image
+            $imagePath = $request->file('image')->store('users', 'public');
+            
+            // Update user's image
+            $user->update(['image' => $imagePath]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Image updated successfully',
+                'data' => [
+                    'user' => $user
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update image',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function removeImage($id): JsonResponse
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        try {
+            // Delete image file from storage if exists
+            if ($user->image && Storage::disk('public')->exists($user->image)) {
+                Storage::disk('public')->delete($user->image);
+            }
+
+            // Set image to null in database
+            $user->update(['image' => null]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Image removed successfully',
+                'data' => $user
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to remove image',
                 'error' => $e->getMessage()
             ], 500);
         }

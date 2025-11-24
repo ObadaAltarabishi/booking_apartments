@@ -22,7 +22,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/refresh', [AuthController::class, 'refresh']);
     
     // // Your other protected routes here
-    Route::apiResource('users', UserController::class);
+    Route::get('users', [UserController::class,'index']);
+    Route::get('users/{id}', [UserController::class,'index']);
+    Route::post('users', [UserController::class,'store']);
+    Route::put('users', [UserController::class,'update']);
+    Route::delete('users', [UserController::class,'delete']);
     Route::get('users/{id}/apartments', [UserController::class, 'getUserApartments']);
     Route::get('users/{id}/bookings', [UserController::class, 'getUserBookings']);
     Route::get('users/{id}/reviews', [UserController::class, 'getUserReviews']);

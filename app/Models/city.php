@@ -16,7 +16,7 @@ class city extends Authenticatable
     protected $table = 'city';
 
     protected $fillable = [
-        'name',
+        'name'
         
     ];
 

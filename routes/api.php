@@ -39,7 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('city/{id}', [cityController::class,'show']);
     Route::post('city', [cityController::class,'store']);
     Route::delete('city/{id}', [cityController::class,'destroy']);
-    Route::get('city/all', [cityController::class,'allcity']);
+    Route::get('city/show/all', [cityController::class,'Allcities']);
 
 
     // Route::apiResource('apartments', ApartmentController::class);

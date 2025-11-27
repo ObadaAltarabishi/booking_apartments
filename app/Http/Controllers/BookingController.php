@@ -10,6 +10,7 @@ use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class BookingController extends Controller
@@ -82,6 +83,7 @@ class BookingController extends Controller
         }
 
         try {
+            DB::beginTransaction();
             // Get the apartment using the id from route parameter
             $apartment = apartments::find($id);
 
@@ -100,6 +102,15 @@ class BookingController extends Controller
                 ], 422);
             }
 
+            // Fetch apartment owner
+            $apartmentOwner = User::find($apartment->user_id);
+            if (!$apartmentOwner) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Apartment owner not found'
+                ], 404);
+            }
+
             // Parse dates from m/d/Y format
             $startDate = Carbon::createFromFormat('m/d/Y', $request->startDate);
             $endDate = Carbon::createFromFormat('m/d/Y', $request->endDate);
@@ -112,6 +123,16 @@ class BookingController extends Controller
                 ], 422);
             }
 
+            // Ensure user has enough balance to cover apartment price
+            if (($user->balance ?? 0) < $apartment->price) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Insufficient balance to book this apartment',
+                    'required_balance' => $apartment->price,
+                    'current_balance' => $user->balance ?? 0
+                ], 422);
+            }
+
             // Create booking using verified user ID
             $booking = Booking::create([
                 'apartments_id' => $apartment->id,
@@ -120,8 +141,21 @@ class BookingController extends Controller
                 'endDate' => $endDate->format('Y-m-d'),
             ]);
 
+            // Deduct apartment price from user balance
+            $user->update([
+                'balance' => ($user->balance ?? 0) - $apartment->price
+            ]);
+
+            // Add apartment price to owner balance
+            $ownerCurrentBalance = $apartmentOwner->balance ?? 0;
+            $apartmentOwner->update([
+                'balance' => $ownerCurrentBalance + $apartment->price
+            ]);
+
             // Optionally update apartment status to unavailable
-             $apartment->update(['status' => 'unavailable']);
+            $apartment->update(['status' => 'unavailable']);
+
+            DB::commit();
 
             return response()->json([
                 'success' => true,
@@ -129,6 +163,7 @@ class BookingController extends Controller
                 'data' => $booking->load('apartment', 'user')
             ], 201);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to book apartment',

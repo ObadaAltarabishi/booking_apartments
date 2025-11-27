@@ -379,4 +379,74 @@ class UserController extends Controller
             ], 500);
         }
     }
+
+    public function addBalance(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized. Please login first.'
+            ], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'balance' => 'required|numeric|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',   
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            // Ensure balance is numeric; default to 0 if null
+            $currentBalance = $user->balance ?? 0;
+            $user->update(['balance' => $currentBalance + $request->balance]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Balance added successfully',  
+                'data' => [
+                    
+                    'balance' => $user->balance
+                ], 200
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to add balance',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getBalance(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized. Please login first.'
+            ], 401);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Balance fetched successfully',
+            'data' => [
+                'user' => $user,
+                'balance' => $user->balance
+            ],
+        ]);
+    }
+
+    
+
+    
 }

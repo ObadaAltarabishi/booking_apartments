@@ -53,5 +53,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route::apiResource('apartments', ApartmentController::class);
     Route::post('bookings/{id}', [BookingController::class,'BookingApartment']);
     Route::get('bookings', [BookingController::class,'show']);  
+
+    //user balance api's
+    Route::post('users/balance', [UserController::class,'addBalance']);
+    Route::get('users/balance', [UserController::class,'getBalance']);
     // Route::apiResource('reviews', ReviewController::class);
 });

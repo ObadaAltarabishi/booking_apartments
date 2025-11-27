@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string("password");
             $table->string("phone")->unique();
             $table->string("image")->nullable();
+            $table->float("balance")->default(0)->nullable();
             $table->rememberToken();
             $table->timestamps();
 

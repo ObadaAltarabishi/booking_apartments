@@ -15,8 +15,12 @@ return new class extends Migration
             $table->id();
             $table->date("startDate");
             $table->date("endDate");
-            $table->foreignId("user_id")->constrained()->cascadeOnDelete();
-            $table->foreignId("apartments_id")->constrained()->cascadeOnDelete();
+            $table->unsignedBigInteger("user_id");
+            $table->unsignedBigInteger("apartments_id");
+            //$table->foreignId("user_id")->constrained('user')->cascadeOnDelete();
+            $table->foreign('user_id')->references('id')->on('user')->onDelete('cascade');
+            //$table->foreignId("apartments_id")->constrained()->cascadeOnDelete();
+            $table->foreign('apartments_id')->references('id')->on('apartments')->onDelete('cascade');
             $table->timestamps();
 
 

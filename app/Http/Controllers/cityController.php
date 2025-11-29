@@ -134,22 +134,23 @@ class cityController extends Controller
     }
 
 
-    public function allcity():JsonResponse
-    {
-         try {
-            $city = city::all();
-            return response()->json([
-                'success' => true,
-                'data' => $city
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to fetch cities',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+    
+    public function Allcities(): JsonResponse
+{
+    try {
+        $cityNames = city::pluck('name'); // Get only the 'name' column
+        return response()->json([
+            'success' => true,
+            'data' => $cityNames
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to fetch cities',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
 
 

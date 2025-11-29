@@ -4,30 +4,27 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class reviews extends Model
+class Reviews extends Model
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
 
     protected $table = 'reviews';
 
     protected $fillable = [
         'count',
-        'reviewsAll',
+        'reviewsAll', // This stores the sum of all ratings
         'user_id',
         'apartments_id',
-        
     ];
 
-      protected $casts = [
+    protected $casts = [
         'reviewsAll' => 'float',
         'count' => 'integer',
     ];
 
-     public function user(): BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
@@ -36,4 +33,13 @@ class reviews extends Model
     {
         return $this->belongsTo(Apartments::class, 'apartments_id');
     }
+
+
+    // Add a new rating and update the average
+    public function addRating(int $rating): void
+    {
+        $this->reviewsAll += $rating;
+        $this->save();
+    }
+
 }

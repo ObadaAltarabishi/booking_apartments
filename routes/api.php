@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\cityController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\apartmentsController;
 use App\Http\Controllers\reviewsController;
 
@@ -54,6 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/reviews/{id}', [reviewsController::class, 'destroy']);
 
     // Route::apiResource('apartments', ApartmentController::class);
-    // Route::apiResource('bookings', BookingController::class);
+    Route::post('bookings/{id}', [BookingController::class,'BookingApartment']);
+    Route::get('bookings', [BookingController::class,'show']);  
     // Route::apiResource('reviews', ReviewController::class);
 });

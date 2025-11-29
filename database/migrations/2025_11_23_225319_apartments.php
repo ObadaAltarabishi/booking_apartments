@@ -18,12 +18,15 @@ return new class extends Migration
             $table->string("description")->nullable();
             $table->float("price");
             $table->enum("status", ["available","unavailable"])->default("available");
-            $table->foreignId("user_id")->constrained()->cascadeOnDelete();
-            $table->unsignedBigInteger("city_id");            
+            // $table->foreignId("user_id")->constrained()->cascadeOnDelete();
+            $table->unsignedBigInteger("city_id");
+            $table->unsignedBigInteger("user_id");
             $table->json('images')->nullable();
+            $table->float('overAllrating')->default(0);
+            $table->float('numOfratings')->default(0);
             $table->timestamps();
             $table->foreign('city_id')->references('id')->on('city')->onDelete('cascade');
-           
+            $table->foreign('user_id')->references('id')->on('user')->onDelete('cascade');           
 
 
     });

@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\cityController;
+use App\Http\Controllers\apartmentsController;
+use App\Http\Controllers\reviewsController;
 
 
 // Route::get('/user', function (Request $request) {
@@ -41,6 +43,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('city/{id}', [cityController::class,'destroy']);
     Route::get('city/show/all', [cityController::class,'Allcities']);
 
+    //apartments api's
+    Route::post('apartments', [apartmentsController::class,'store']);
+    Route::get('apartments', [apartmentsController::class,'index']);
+    Route::get('apartments/{id}', [apartmentsController::class,'show']);
+    Route::post('apartments/{id}', [apartmentsController::class,'update']);
+    Route::delete('apartments/{id}', [apartmentsController::class,'destroy']);  
+
+    Route::post('/reviews', [reviewsController::class, 'store']);
+    Route::delete('/reviews/{id}', [reviewsController::class, 'destroy']);
 
     // Route::apiResource('apartments', ApartmentController::class);
     // Route::apiResource('bookings', BookingController::class);
